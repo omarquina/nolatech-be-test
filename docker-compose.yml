@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  nolatech-dev:
+    platform: linux/x86_64
+    container_name: ${APPLICATION_NAME}
+    image: ${APPLICATION_NAME}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: develop
+    env_file:
+      - .env
+    ports:
+      - "${PUBLIC_PORT}:${PRIVATE_PORT}"
+    volumes:
+      - '.:/app:z'
+      - './node_modules:/app/node_modules:z'
+      - './.root:/root:z'
+    depends_on:
+      - mongodb
+    networks:
+      - shared-net
+    mem_limit: 5G
+
+
+  mongodb:
+    image: "mongo:6.0.13-jammy"
+    ports:
+      - "${MONGODB_PORT}:${MONGODB_PORT}"
+    networks:
+      - shared-net
+    volumes:
+      - 'mongodb-data:/data/db'
+
+networks:
+  shared-net:
+    external: true
+
+volumes:
+  mongodb-data: {}
